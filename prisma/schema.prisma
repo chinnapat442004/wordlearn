@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum WordStatus {
+  UNLEARNED
+  LEARNING
+  MASTERED
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  words       Word[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Word {
+  id              String     @id @default(uuid())
+  categoryId      String     @map("category_id")
+  term            String
+  meaning         String
+  partOfSpeech    String?    @map("part_of_speech")
+  exampleSentence String?    @map("example_sentence")
+  status          WordStatus @default(UNLEARNED)
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([status])
+  @@map("words")
+}
